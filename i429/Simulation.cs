@@ -46,107 +46,194 @@ namespace i429
 
         void Step()
         {
-            foreach (var bacterium in Bacteria)
+            Bacteria.RemoveAll(x => x.Age == LifeTime);
+            foreach (var bacterium in Bacteria.Where(x=>x.IsActive).ToArray())
             {
-                if (bacterium.Location.X == 0 && bacterium.Location.Y == 0) //Bal alsó sarok   
+                var dx = 0;
+                var dy = 0;
+                if (bacterium.Location.X == 0)
                 {
                     switch (Rnd.Next(0, 2))
                     {
-                        case 0:
-                            bacterium.Location.X++;
-                            break;
                         case 1:
-                            bacterium.Location.Y++;
+                            dx = 1;
                             break;
+                    }
+                    if (bacterium.Location.Y == 0)
+                    {
+                        if (dx == 0)
+                        {
+                            dy = 1;
+                        }
+                    }
+                    else if (bacterium.Location.Y == B)
+                    {
+                        if (dx == 0)
+                        {
+                            dy = -1;
+                        }
+                    }
+                    else
+                    {
+                        switch (Rnd.Next(0, 2))
+                        {
+                            case 1:
+                                if (dx == 0)
+                                {
+                                    dy = 1;
+                                }
+                                break;
+                            case 2:
+                                if (dx == 0)
+                                {
+                                    dy = -1;
+                                }
+                                break;
+                        }
                     }
                 }
-                if (bacterium.Location.X == 0 && bacterium.Location.Y == B) //Bal felső sarok   
+                if (bacterium.Location.X == A)
                 {
                     switch (Rnd.Next(0, 2))
                     {
-                        case 0:
-                            bacterium.Location.X++;
-                            break;
                         case 1:
-                            bacterium.Location.Y--;
+                            dx = -1;
                             break;
+                    }
+                    if (bacterium.Location.Y == 0)
+                    {
+                        if (dx == 0)
+                        {
+                            dy = 1;
+                        }
+                    }
+                    else if (bacterium.Location.Y == B)
+                    {
+                        if (dx == 0)
+                        {
+                            dy = -1;
+                        }
+                    }
+                    else
+                    {
+                        switch (Rnd.Next(0, 2))
+                        {
+                            case 1:
+                                if (dx == 0)
+                                {
+                                    dy = 1;
+                                }
+                                break;
+                            case 2:
+                                if (dx == 0)
+                                {
+                                    dy = -1;
+                                }
+                                break;
+                        }
                     }
                 }
-                if (bacterium.Location.X == A && bacterium.Location.Y == 0) //Jobb alsó sarok   
+                else
                 {
-                    switch (Rnd.Next(0, 2))
+                    switch (Rnd.Next(0, 3))
                     {
-                        case 0:
-                            bacterium.Location.X--;
-                            break;
                         case 1:
-                            bacterium.Location.Y++;
+                            dx = -1;
                             break;
+                        case 2:
+                            dx = 1;
+                            break;
+                    }
+                    if (bacterium.Location.Y == 0)
+                    {
+                        if (dx == 0)
+                        {
+                            dy = 1;
+                        }
+                    }
+                    else if (bacterium.Location.Y == B)
+                    {
+                        if (dx == 0)
+                        {
+                            dy = -1;
+                        }
+                    }
+                    else
+                    {
+                        switch (Rnd.Next(0, 2))
+                        {
+                            case 1:
+                                if (dx == 0)
+                                {
+                                    dy = 1;
+                                }
+                                break;
+                            case 2:
+                                if (dx == 0)
+                                {
+                                    dy = -1;
+                                }
+                                break;
+                        }
                     }
                 }
-                if (bacterium.Location.X == 0 && bacterium.Location.Y == 0) //Jobb felső sarok   
+                bacterium.Location = Points.Where(x => x.X == bacterium.Location.X + dx
+                && x.Y == bacterium.Location.Y + dy).ToArray()[0];
+                bacterium.Age++;
+                if (Squares.Where(x => x.Location == bacterium.Location).ToArray()[0] is IslandSquare)
                 {
-                    switch (Rnd.Next(0, 2))
-                    {
-                        case 0:
-                            bacterium.Location.X++;
-                            break;
-                        case 1:
-                            bacterium.Location.Y++;
-                            break;
-                    }
+
                 }
             }
         }
-
         void CreateContainer(int a, int b)
-            {
-                Container = new Container(a, b, Squares);
-            }
+        {
+            Container = new Container(a, b, Squares);
+        }
 
-            void CreateSquares(int n)
+        void CreateSquares(int n)
+        {
+            foreach (var t in Points)
             {
-                foreach (var t in Points)
-                {
-                    var bacteriaLocal = Bacteria.Where(a => a.Location == t).ToArray();
-                    Squares.Add(new Square(t, bacteriaLocal));
-                }
+                var bacteriaLocal = Bacteria.Where(a => a.Location == t).ToArray();
+                Squares.Add(new Square(t, bacteriaLocal));
             }
+        }
 
-            void CreateIslands(int n)
+        void CreateIslands(int n)
+        {
+            for (var i = 0; i < n; i++)
             {
-                for (var i = 0; i < n; i++)
-                {
-                    // ReSharper disable once CompareOfFloatsByEqualityOperator
-                    // ReSharper disable once PossibleLossOfFraction
-                    // ReSharper disable once AccessToModifiedClosure
-                    Islands.Add(new Island(Points.Where(x => x.X == A / 2 && x.Y == Math.Floor((double)(i * B / (n + 1)))).ToArray()[0]));
-                }
-            }
-
-            void CreateBacteria(int n)
-            {
-                for (var i = 0; i < n; i++)
-                {
-                    // ReSharper disable once PossibleLossOfFraction
-                    for (var j = 0; j < Math.Floor((double)(K / n)); j++)
-                    {
-                        Bacteria.Add(new Bacterium(Points.Where(x => x == Islands[i].Location).ToList()[0], false));
-                    }
-                }
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
                 // ReSharper disable once PossibleLossOfFraction
-                for (var i = 0; i < K - n * Math.Floor((double)(K / n)); i++)
+                // ReSharper disable once AccessToModifiedClosure
+                Islands.Add(new Island(Points.Where(x => x.X == A / 2 && x.Y == Math.Floor((double)(i * B / (n + 1)))).ToArray()[0]));
+            }
+        }
+
+        void CreateBacteria(int n)
+        {
+            for (var i = 0; i < n; i++)
+            {
+                // ReSharper disable once PossibleLossOfFraction
+                for (var j = 0; j < Math.Floor((double)(K / n)); j++)
                 {
-                    Bacteria.Add(new Bacterium(Points.Where(x => x.X == 0 && x.Y == 0).ToArray()[0], true));
+                    Bacteria.Add(new Bacterium(Points.Where(x => x == Islands[i].Location).ToList()[0], false));
                 }
             }
-
-            void CreatePoints(int[] x, int[] y)
+            // ReSharper disable once PossibleLossOfFraction
+            for (var i = 0; i < K - n * Math.Floor((double)(K / n)); i++)
             {
-                for (var i = 0; i < x.Length; i++)
-                {
-                    Points.Add(new Point(x[i], y[i]));
-                }
+                Bacteria.Add(new Bacterium(Points.Where(x => x.X == 0 && x.Y == 0).ToArray()[0], true));
+            }
+        }
+
+        void CreatePoints(int[] x, int[] y)
+        {
+            for (var i = 0; i < x.Length; i++)
+            {
+                Points.Add(new Point(x[i], y[i]));
             }
         }
     }
+}
